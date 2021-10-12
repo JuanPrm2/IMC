@@ -14,7 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.converter.NumberStringConverter;
-
+//ejercicio para calcular indice de masa y estado fisico con interfaz javafx
 public class IndiceMasa extends Application{
 
 	
@@ -94,7 +94,7 @@ public class IndiceMasa extends Application{
 
 	private void onResultadoChanged(double nv) {
 
-		
+		//
 		if(operando1.doubleValue()!=0&&operando2.doubleValue()!=0) {
 			if(nv<18.5) {
 				estadoLabel.setText("Bajo peso");
