@@ -1,21 +1,25 @@
 package ejercicio;
 
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.converter.NumberStringConverter;
 
 public class IndiceMasa extends Application{
 
 	
-	private TextField operando1Text, operando2Text;
-	
+	private TextField pesoText, alturaText;
+	private Label imcLabel,estadoLabel,resultadoLabel;
 	
 	
 	private DoubleProperty operando1 = new SimpleDoubleProperty(0);
@@ -25,38 +29,89 @@ public class IndiceMasa extends Application{
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 	
-		operando1Text = new TextField("1");
-		operando1Text.setAlignment(Pos.CENTER);
-		operando1Text.relocate(100, 120);
-		operando1Text.setPrefWidth(100);
+		pesoText = new TextField();
+		pesoText.setAlignment(Pos.CENTER);
+		pesoText.setPrefWidth(100);
 		
-		operando2Text = new TextField("2");
-		operando2Text.setAlignment(Pos.CENTER);
-		operando2Text.relocate(150, 100);
-		operando2Text.setPrefWidth(100);
+		alturaText = new TextField();
+		alturaText.setAlignment(Pos.CENTER);
+		alturaText.setPrefWidth(100);
+		
+		imcLabel = new Label("IMC: ");
+		imcLabel.setAlignment(Pos.CENTER);
+		
+		estadoLabel=new Label("Bajo peso | Normal | Sobrepeso | Obeso");
+		estadoLabel.setAlignment(Pos.CENTER);
+		
+		resultadoLabel=new Label();
+		resultadoLabel.setPrefWidth(100);
 		
 		Label peso=  new Label("Peso:");
-		//peso.relocate(100,10);
-		
+		//peso.setPrefWidth(5);
 		Label Altura=  new Label("Altura:");
-		//Altura.relocate(100,40);
+		//Altura.setPrefWidth(5);
 		
 		Label KG=  new Label("kg");
-		//KG.relocate(100,10);
 		
 		Label CM=new Label("cm");
-		//CM.relocate(100,10);
 		
 		
-		HBox root= new HBox( operando1Text, operando2Text,peso,Altura);
+		HBox pesoVox= new HBox( peso,pesoText,KG);
+		pesoVox.setAlignment(Pos.CENTER);
+		HBox alturaVox=new HBox(Altura,alturaText,CM);
+		alturaVox.setAlignment(Pos.CENTER);
+		HBox imc =new HBox(imcLabel,resultadoLabel);
+		imc.setAlignment(Pos.CENTER);
 		
-		
+		VBox root=new VBox (pesoVox,alturaVox,imc,estadoLabel);
+		root.setAlignment(Pos.CENTER);
+		root.setSpacing(5);
 		Scene scene = new Scene(root, 320, 200); 
+		
+		//bindeos
+		pesoText.textProperty().bindBidirectional(operando1, new NumberStringConverter());
+		
+		alturaText.textProperty().bindBidirectional(operando2,new NumberStringConverter());
+		
+		resultado.bind(operando1.divide((operando2.divide(100).multiply(operando2.divide(100)))));
+		
+		resultadoLabel.textProperty().bind(Bindings
+											.when(operando1.lessThanOrEqualTo(0).or(operando2.lessThanOrEqualTo(0)) )
+											.then("peso/(altura^2)")
+											.otherwise(resultado.asString("%.2f"))
+				);
+		
+		resultado.addListener((o,ov,nv) -> onResultadoChanged(nv.doubleValue()));
+		
 		
 		primaryStage.setTitle("IMC");
 		primaryStage.setScene(scene);
 		primaryStage.show();
+		
+	
+		
 	}
+
+	private void onResultadoChanged(double nv) {
+
+		
+		if(operando1.doubleValue()!=0&&operando2.doubleValue()!=0) {
+			if(nv<18.5) {
+				estadoLabel.setText("Bajo peso");
+			}else if(nv>=18.5&&nv<25) {
+				estadoLabel.setText("Normal");
+			}else if(nv>=25&&nv<30) {
+				estadoLabel.setText("Sobrepeso");
+			}else {
+				estadoLabel.setText("Obeso");
+				
+			}	
+		}
+		
+	}
+
+
+
 
 	public static void main(String[] args) {
 		launch(args);
